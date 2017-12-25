@@ -9,7 +9,9 @@ def inverze(image_name):
     j = Image.fromarray(imgarr)
     image_out=input("Uložit obrázek jako: ")
     j.save(image_out)
-    print("Obrázek byl uložen jako:" + image_out)
+    print("Obrázek byl uložen jako: " + image_out)
 image_name= input("Zadejte cestu k obrázku: \n")
-inverze(image_name)
+uprava= input("1) Inverze \nZadejte číslo úpravy: \n")
+if int(uprava) == 1:
+    inverze(image_name)
 
