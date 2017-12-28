@@ -1,6 +1,17 @@
 import numpy as np
 import sys
 from PIL import Image
+def is_number(s):
+    """
+    Kontroluje jestli je string číslo
+    :param s:
+    :return:
+    """
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
 def inverze(img):
     """Tato funkce vytvoří inverzi obrazu. Vstup je pouze cesta k obrazu
     :param img:
@@ -18,7 +29,18 @@ def levels(img_arr):
     :param img_arr:
     :return:
     """
-    level = input("Pro ztmavení zadejte desetinné číslo od 0-1.0 pro zesvětlení číslo >1.0\n")
+    bez = 1
+    while bez:
+        level = input("Pro ztmavení zadejte desetinné číslo od 0-1.0 pro zesvětlení číslo >1.0\n")
+        if is_number(level):
+            if float(level) >= 0:
+                bez = 0
+            else:
+                print('\033[41m' + "Číslo nesmí být záporné!" + '\033[0m')
+        else:
+            print('\033[41m' + "Nezadali jste číslo" + '\033[0m')
+
+
     imgarr = np.asarray(img_arr)
     img2=np.copy(imgarr)
     imgarr.setflags(write = 1) #nutno aby se dalo přepisovat hodnotu v poli, pole je jinak read only
@@ -89,6 +111,79 @@ def hrany(img):
     fin_img = np.asarray(fin_img, dtype=np.uint8)
     img_out = Image.fromarray(fin_img)
     return img_out
+def rotate_coords(x, y, theta, ox, oy):
+    """
+    Otočí pole x a y podle úhlu theta okolo bodu ox, oy(nastaveno na střed obrázku)
+    :param x:
+    :param y:
+    :param theta: úhel otočení
+    :param ox: souřadnice x středu (bodu otočení)
+    :param oy: souřadnice y středu (bodu otočení)
+    :return:
+    """
+
+
+    s, c = np.sin(theta), np.cos(theta)
+
+    x, y = np.asarray(x) - ox, np.asarray(y) - oy
+    return x * c - y * s + ox, x * s + y * c + oy
+
+def rotate_image(src, theta, ox, oy, fill=255):
+    """
+    Otočí obrázek podle úhlu theta a podle souřadni ox, oy - v tomto případě střed obrázku
+    :param src: zdrojový obrázek
+    :param theta: úhel otočení
+    :param ox: střed obrázku
+    :param oy: střed obrázku
+    :param fill:
+    :return:
+    """
+    #musím otočit úhel aby se rotovalo správně
+    theta = -theta
+
+    sh, sw = src.shape
+
+    cx, cy = rotate_coords([0, sw, sw, 0], [0, 0, sh, sh], theta, ox, oy)
+
+    dw, dh = (int(np.ceil(c.max() - c.min())) for c in (cx, cy))
+
+    dx, dy = np.meshgrid(np.arange(dw), np.arange(dh))
+
+    sx, sy = rotate_coords(dx + cx.min(), dy + cy.min(), -theta, ox, oy)
+
+    sx, sy = sx.round().astype(int), sy.round().astype(int)
+
+    mask = (0 <= sx) & (sx < sw) & (0 <= sy) & (sy < sh)
+
+    dest = np.empty(shape=(dh, dw), dtype=src.dtype)
+
+    dest[dy[mask], dx[mask]] = src[sy[mask], sx[mask]]
+
+    dest[dy[~mask], dx[~mask]] = fill
+
+    return dest
+def rotate(img):
+    """
+    Přijme obrázek, načte úhel(angle) a ten obrázek otočí podle zadaného úhlu.
+    :param img:
+    :return:
+    """
+    imgarr = np.asarray(img)
+    r, g, b = np.rollaxis(imgarr, axis=-1)
+    bez=1
+    while bez:
+        angle = input("Zadejte úhel, o který chcete obrázek otočit: \n")
+        if is_number(angle):
+            bez=0
+        else:
+            print('\033[41m'+"Nezadali jste číslo"+ '\033[0m')
+
+    r2 = rotate_image(r, int(angle) * np.pi / 180, int(imgarr.shape[0] // 2), int(imgarr.shape[1] // 2))
+    g2 = rotate_image(g, int(angle) * np.pi / 180, int(imgarr.shape[0] // 2), int(imgarr.shape[1] // 2))
+    b2 = rotate_image(b, int(angle) * np.pi / 180, int(imgarr.shape[0] // 2), int(imgarr.shape[1] // 2))
+    img2 = np.dstack((r2, g2, b2))
+    fin_img = Image.fromarray(img2)
+    return fin_img
 
 bez=1
 while bez:
@@ -103,7 +198,7 @@ while bez:
 
 
 
-uprava= input("1) Inverze\n2) Úrovně (zesvětlit, ztmavit)\n3) Převést obrázek do úrovní šedi \n4) Zvýraznění hran \nZadejte číslo úpravy: \n")
+uprava= input("1) Inverze\n2) Úrovně (zesvětlit, ztmavit)\n3) Převést obrázek do úrovní šedi \n4) Zvýraznění hran \n5) Rotace obrázku\nZadejte číslo úpravy: \n")
 if int(uprava) == 1:
     fin_img = inverze(img)
 elif int(uprava) == 2:
@@ -112,6 +207,8 @@ elif int(uprava) == 3:
     fin_img = seda(img)
 elif int(uprava) == 4:
     fin_img = hrany(img)
+elif int(uprava) == 5:
+    fin_img = rotate(img)
 else:
     sys.exit()
 
