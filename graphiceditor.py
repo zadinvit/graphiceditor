@@ -29,8 +29,7 @@ def levels(img_arr):
             # img2 = img_arr.point(lambda p: p * 1.9) rychlejší zesvětlení pomocí knihovny pillow
 
         else:
-            imgarr = imgarr[:, :, i] * float(level)
-
+            imgarr[:, :, i]= imgarr[:, :, i] * float(level)
 
 
     fin_img = Image.fromarray(imgarr)
