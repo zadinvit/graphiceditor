@@ -10,8 +10,31 @@ def inverze(img):
 
 def levels(img_arr):
     level = input("Pro ztmavení zadejte desetinné číslo od 0-1.0 pro zesvětlení číslo >1.0\n")
-    img2 = img_arr.point(lambda p: p * float(level))
-    return img2
+    imgarr = np.asarray(img_arr)
+    img2=np.copy(imgarr)
+    imgarr.setflags(write=1) #nutno aby se dalo přepisovat hodnotu v poli, pole je jinak read only
+
+    for i in range(3):
+
+        if float(level) > 1:
+
+            for j in range(0, imgarr[:, :, i].shape[0] - 1):
+                for k in range(0, imgarr[:, :, i].shape[1] - 1):
+
+                    subpixel=imgarr[:, :, i][j][k] * float(level)
+                    if subpixel >= 255:
+                        imgarr[:, :, i][j][k] = 255
+                    else:
+                        imgarr[:, :, i][j][k] = subpixel
+            # img2 = img_arr.point(lambda p: p * 1.9) rychlejší zesvětlení pomocí knihovny pillow
+
+        else:
+            imgarr = imgarr[:, :, i] * float(level)
+
+
+
+    fin_img = Image.fromarray(imgarr)
+    return fin_img
 def seda(img):
     imgarr = np.asarray(img)
     imgarr.setflags(write=1)
