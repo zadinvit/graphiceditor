@@ -184,7 +184,26 @@ def rotate(img):
     img2 = np.dstack((r2, g2, b2))
     fin_img = Image.fromarray(img2)
     return fin_img
-
+def zrcadleni(img):
+    """
+    Převrátí obrázek zrcadlově, buďto vertikální po zadání 0, nebo horizontálně po zadání 1.
+    :param img: vstupní obrázek
+    :return:
+    """
+    imgarr = np.asarray(img)
+    bez =1
+    while bez:
+        volba = input("Pro horizontální převrácení zadejte 1, pro vertikální 0: \n")
+        if is_number(volba):
+            if int(volba) == 1 or int(volba) == 0:
+                bez = 0
+            else:
+                print('\033[41m' + "Zadejte prosím 0 nebo 1." + '\033[0m')
+        else:
+            print('\033[41m' + "Nezadali jste číslo" + '\033[0m')
+    img2 = np.flip(imgarr,int(volba))
+    fin_img = Image.fromarray(img2)
+    return fin_img
 bez=1
 while bez:
     try:
@@ -198,7 +217,7 @@ while bez:
 
 
 
-uprava= input("1) Inverze\n2) Úrovně (zesvětlit, ztmavit)\n3) Převést obrázek do úrovní šedi \n4) Zvýraznění hran \n5) Rotace obrázku\nZadejte číslo úpravy: \n")
+uprava= input("1) Inverze\n2) Úrovně (zesvětlit, ztmavit)\n3) Převést obrázek do úrovní šedi \n4) Zvýraznění hran \n5) Rotace obrázku\n6) Zrcadlové převrácení\nZadejte číslo úpravy: \n")
 if int(uprava) == 1:
     fin_img = inverze(img)
 elif int(uprava) == 2:
@@ -209,6 +228,8 @@ elif int(uprava) == 4:
     fin_img = hrany(img)
 elif int(uprava) == 5:
     fin_img = rotate(img)
+elif int(uprava) == 6:
+    fin_img = zrcadleni(img)
 else:
     sys.exit()
 
