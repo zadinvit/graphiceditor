@@ -215,25 +215,35 @@ while bez:
         print('\033[41m'+"Tento obrázek neexistuje!"+ '\033[0m')
         pass
 
-
-
-uprava= input("1) Inverze\n2) Úrovně (zesvětlit, ztmavit)\n3) Převést obrázek do úrovní šedi \n4) Zvýraznění hran \n5) Rotace obrázku\n6) Zrcadlové převrácení\nZadejte číslo úpravy: \n")
-if int(uprava) == 1:
-    fin_img = inverze(img)
-elif int(uprava) == 2:
-    fin_img = levels(img)
-elif int(uprava) == 3:
-    fin_img = seda(img)
-elif int(uprava) == 4:
-    fin_img = hrany(img)
-elif int(uprava) == 5:
-    fin_img = rotate(img)
-elif int(uprava) == 6:
-    fin_img = zrcadleni(img)
-else:
-    sys.exit()
+bez=1
+while bez:
+    bez=0
+    bez2 = 1
+    while bez2:
+        uprava = input("1) Inverze\n2) Úrovně (zesvětlit, ztmavit)\n3) Převést obrázek do úrovní šedi \n4) Zvýraznění hran \n5) Rotace obrázku\n6) Zrcadlové převrácení\n0) Konec\nZadejte číslo úpravy: \n")
+        if is_number(uprava):
+            bez2 = 0
+        else:
+            print('\033[41m' + "Zadejte prosím číslo!" + '\033[0m')
+    if int(uprava) == 1:
+        fin_img = inverze(img)
+    elif int(uprava) == 2:
+        fin_img = levels(img)
+    elif int(uprava) == 3:
+        fin_img = seda(img)
+    elif int(uprava) == 4:
+        fin_img = hrany(img)
+    elif int(uprava) == 5:
+        fin_img = rotate(img)
+    elif int(uprava) == 6:
+        fin_img = zrcadleni(img)
+    elif int(uprava) == 0:
+        sys.exit()
+    else:
+        print('\033[43m'+"Zadejte prosím jednu z voleb!"+ '\033[0m')
+        bez=1
 
 image_out=input("Uložit obrázek jako: ")
 
 fin_img.save(image_out)
-print("Obrázek byl uložen jako: " + image_out)
+print('\033[42m'+"Obrázek byl uložen jako: " + image_out + '\033[0m')
