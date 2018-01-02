@@ -164,7 +164,7 @@ def rotate_image(src, theta, ox, oy, fill=255):
     return dest
 def rotate(img):
     """
-    Přijme obrázek, načte úhel(angle) a ten obrázek otočí podle zadaného úhlu.
+    Přijme obrázek, načte úhel(angle) a obrázek otočí podle zadaného úhlu.
     :param img:
     :return:
     """
@@ -204,6 +204,84 @@ def zrcadleni(img):
     img2 = np.flip(imgarr,int(volba))
     fin_img = Image.fromarray(img2)
     return fin_img
+def levels_color(img_arr):
+    """
+    SLouží ke zesílení/zeslabení určitého rgb obrázku. Vstup je cesta k obrázku image a poté se do proměnné level načte ze vstupu číslo, pokud je toto číslo menší jak 1 obrázek se ztmaví např. 0.5, případně 1.5 to zase obrázek zesvětlí.
+    :param img_arr:
+    :return:
+    """
+    bez = 1
+    while bez:
+        kanal = input("Zadejte RGB kanál, který chcete upravovat: \n 0 - červená\n 1 - zelená\n 2 - modrá\n")
+        if is_number(kanal):
+            if float(kanal) >= 0 and float(kanal)<=2:
+                bez = 0
+            else:
+                print('\033[41m' + "Zadejte 1,2 nebo 3." + '\033[0m')
+        else:
+            print('\033[41m' + "Nezadali jste číslo" + '\033[0m')
+    bez = 1
+    while bez:
+        level = input("Pro potlačení vybraného kanálu zadejte desetinné číslo od 0-1.0(0 odstraní barvu uplně). Pro zesílení barvy číslo >1.0\n")
+        if is_number(level):
+            if float(level) >= 0:
+                bez = 0
+            else:
+                print('\033[41m' + "Číslo nesmí být záporné!" + '\033[0m')
+        else:
+            print('\033[41m' + "Nezadali jste číslo" + '\033[0m')
+
+
+    imgarr = np.asarray(img_arr)
+    img2=np.copy(imgarr)
+    imgarr.setflags(write = 1) #nutno aby se dalo přepisovat hodnotu v poli, pole je jinak read only
+
+    i=int(kanal)
+    #forcyklus přes jednotlivé barvy
+    if float(level) > 1:
+
+        for j in range(0, imgarr[:, :, i].shape[0] - 1):
+            for k in range(0, imgarr[:, :, i].shape[1] - 1):
+
+                subpixel=imgarr[:, :, i][j][k] * float(level)
+                if subpixel >= 255:
+                    imgarr[:, :, i][j][k] = 255
+                else:
+                    imgarr[:, :, i][j][k] = subpixel
+            # img2 = img_arr.point(lambda p: p * 1.9) rychlejší zesvětlení pomocí knihovny pillow
+
+    else:
+        imgarr[:, :, i]= imgarr[:, :, i] * float(level)
+
+
+    fin_img = Image.fromarray(imgarr)
+    return fin_img
+def helpme(uprava):
+    """
+    Zobrazí nápovědu k určitému příkazu.
+    """
+    if int(uprava) == 1:
+        help(inverze)
+    elif int(uprava) == 2:
+        help(levels)
+    elif int(uprava) == 3:
+        help(seda)
+    elif int(uprava) == 4:
+        help(hrany)
+    elif int(uprava) == 5:
+        help(rotate)
+    elif int(uprava) == 6:
+        help(zrcadleni(img))
+    elif int(uprava) == 7:
+        help(levels_color(img))
+    elif int(uprava) == 8:
+        help(helpme)
+    elif int(uprava) == 0:
+        print("Ukončí program.")
+    else:
+        print('\033[43m' + "Zadejte prosím jednu z voleb!" + '\033[0m')
+
+#*********main**************
 bez=1
 while bez:
     try:
@@ -220,7 +298,7 @@ while bez:
     bez=0
     bez2 = 1
     while bez2:
-        uprava = input("1) Inverze\n2) Úrovně (zesvětlit, ztmavit)\n3) Převést obrázek do úrovní šedi \n4) Zvýraznění hran \n5) Rotace obrázku\n6) Zrcadlové převrácení\n0) Konec\nZadejte číslo úpravy: \n")
+        uprava = input("1) Inverze\n2) Úrovně (zesvětlit, ztmavit)\n3) Převést obrázek do úrovní šedi \n4) Zvýraznění hran \n5) Rotace obrázku\n6) Zrcadlové převrácení\n7) Úrovně pro jeden kanál\n8) Nápověda k příkazům\n0) Konec\nZadejte číslo úpravy: \n")
         if is_number(uprava):
             bez2 = 0
         else:
@@ -237,6 +315,18 @@ while bez:
         fin_img = rotate(img)
     elif int(uprava) == 6:
         fin_img = zrcadleni(img)
+    elif int(uprava) == 7:
+        fin_img = levels_color(img)
+    elif int(uprava) == 8:
+        bez3=1
+        while bez3:
+            napoveda=input("Zadejte číslo příkazu, pro který chcete nápovědu:")
+            if is_number(napoveda):
+                bez3 = 0
+            else:
+                print('\033[41m' + "Zadejte prosím číslo!" + '\033[0m')
+        helpme(napoveda)
+        bez=1
     elif int(uprava) == 0:
         sys.exit()
     else:
